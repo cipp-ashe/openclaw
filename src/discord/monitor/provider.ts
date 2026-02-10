@@ -15,6 +15,7 @@ import {
   resolveNativeSkillsEnabled,
 } from "../../config/commands.js";
 import { loadConfig } from "../../config/config.js";
+import { buildGatewayConnectionDetails } from "../../gateway/call.js";
 import { danger, logVerbose, shouldLogVerbose, warn } from "../../globals.js";
 import { formatErrorMessage } from "../../infra/errors.js";
 import { createDiscordRetryRunner } from "../../infra/retry-policy.js";
@@ -469,6 +470,7 @@ export async function monitorDiscordProvider(opts: MonitorDiscordOpts = {}) {
         token,
         accountId: account.accountId,
         config: execApprovalsConfig,
+        gatewayUrl: buildGatewayConnectionDetails({ config: cfg }).url,
         cfg,
         runtime,
       })
