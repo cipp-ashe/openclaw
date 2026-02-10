@@ -527,18 +527,27 @@ export class ExecApprovalButton extends Button {
   }
 
   async run(interaction: ButtonInteraction, data: ComponentData): Promise<void> {
+    logDebug(
+      `discord exec approvals: button interaction received, customId data: ${JSON.stringify(data)}`,
+    );
+
     const parsed = parseExecApprovalData(data);
     if (!parsed) {
+      logError(`discord exec approvals: failed to parse button data: ${JSON.stringify(data)}`);
       try {
         await interaction.update({
           content: "This approval is no longer valid.",
           components: [],
         });
-      } catch {
-        // Interaction may have expired
+      } catch (err) {
+        logError(`discord exec approvals: failed to update interaction: ${String(err)}`);
       }
       return;
     }
+
+    logDebug(
+      `discord exec approvals: parsed approval id=${parsed.approvalId} action=${parsed.action}`,
+    );
 
     const decisionLabel =
       parsed.action === "allow-once"
@@ -553,21 +562,25 @@ export class ExecApprovalButton extends Button {
         content: `Submitting decision: **${decisionLabel}**...`,
         components: [], // Remove buttons
       });
-    } catch {
+    } catch (err) {
+      logError(`discord exec approvals: failed to update interaction: ${String(err)}`);
       // Interaction may have expired, try to continue anyway
     }
 
     const ok = await this.ctx.handler.resolveApproval(parsed.approvalId, parsed.action);
 
     if (!ok) {
+      logError(
+        `discord exec approvals: failed to resolve approval ${parsed.approvalId} with ${parsed.action}`,
+      );
       try {
         await interaction.followUp({
           content:
             "Failed to submit approval decision. The request may have expired or already been resolved.",
           ephemeral: true,
         });
-      } catch {
-        // Interaction may have expired
+      } catch (err) {
+        logError(`discord exec approvals: failed to send followup: ${String(err)}`);
       }
     }
     // On success, the handleApprovalResolved event will update the message with the final result
