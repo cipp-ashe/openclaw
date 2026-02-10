@@ -226,6 +226,9 @@ Notes:
 - **Exec approvals in Discord**: Discord supports a **button UI** for exec approvals in DMs (Allow once / Always allow / Deny). `/approve <id> ...` is only for forwarded approvals and won’t resolve Discord’s button prompts. If you see `❌ Failed to submit approval: Error: unknown approval id` or the UI never shows up, check:
   - `channels.discord.execApprovals.enabled: true` in your config.
   - Your Discord user ID is listed in `channels.discord.execApprovals.approvers` (the UI is only sent to approvers).
+  - The gateway is running and accessible (exec approvals require a gateway connection to receive/resolve approval requests).
+  - For remote gateways, ensure `gateway.remote.url` is configured correctly.
+  - Check gateway logs for connection errors from the Discord exec approval handler.
   - Use the buttons in the DM prompt (**Allow once**, **Always allow**, **Deny**).
   - See [Exec approvals](/tools/exec-approvals) and [Slash commands](/tools/slash-commands) for the broader approvals and command flow.
 
